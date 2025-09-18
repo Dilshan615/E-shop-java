@@ -41,13 +41,14 @@ if ($user_ps->num_rows == 1) {
         if (in_array($imege_extension, $aie)) {
 
             $aie;
-
-
-
-
-
-
-
+            
+            if ($imege_extension == "image/jpeg") {
+                $new_imege_extension = ".jpeg";
+            } else if ($imege_extension == "imsge/png") {
+                $new_imege_extension = ".png";
+            } else if ($imege_extension == "inge/svg+xml") {
+                $new_imege_extension  = ".svg";
+            }
 
 
             $file_name = "resource/profile_images//" . $fname . "_" . uniqid() . $new_imege_extension;
