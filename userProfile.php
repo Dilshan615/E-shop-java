@@ -23,7 +23,24 @@
     <div class="container-fluid">
         <div class="row">
 
-            <?php include "header.php"; ?>
+            <?php include "header.php";
+            include "connection.php";
+
+            if (isset($_SESSION["u"])) {
+                $email = $_SESSION["u"]["email"];
+                $details_rs = Database::search("SELECT * FROM `user` INNER JOIN `gender` ON `user`.`gender_gender_id`=`gender`.`gender_id` WHERE `email`='" . $email . "' ");
+                $imege_rs = Database::search("SELECT * FROM `profile_img` WHERE `user_email`='" . $email . "'");
+                $address_rs = Database::search("SELECT * FROM `user_has_address` INNER JOIN `city` 
+                ON `user_has_address`.`city_city_id`=`city`.`city_id` INNER JOIN `district`
+                ON `city`.`district_district_id`=`district`.`district_id` INNER JOIN `province`
+                ON `district`.`province_province_id`=`province`.`province_id` WHERE `user_email`='" . $email . "'");
+
+                $user_details = $details_rs->fetch_assoc();
+                $imege_details = $imege_rs->fetch_assoc();
+                $address_details = $address_rs->fetch_assoc();
+            }
+
+            ?>
 
             <div class="col-12 bg-primary">
                 <div class="row">
@@ -34,10 +51,22 @@
                             <div class="col-md-3 border-end">
                                 <div class="d-flex flex-column align-items-center text-center p-3 py-5">
 
-                                    <img src="resource/new_user.svg" class="rounded mt-5" style="width: 150px;" id="img"/>
+                                    <?php
+                                    if (empty($imege_details["path"])) {
+                                    ?>
+                                        <img src="resource/new_user.svg" class="rounded mt-5" style="width: 150px;" id="img" />
+                                    <?php
 
-                                    <span class="fw-bold">Sahan Perera</span>
-                                    <span class="fw-bold text-black-50">sahan@gmail.com</span>
+                                    } else {
+                                    ?>
+                                        <img src="<?php echo $imege_details["path"] ?>" class="rounded mt-5" style="width: 150px;" id="img" />
+                                    <?php
+                                    }
+
+                                    ?>
+
+                                    <span class="fw-bold"><?php echo $user_details["fname"] . " " . $user_details["lname"] ?></span>
+                                    <span class="fw-bold text-black-50"><?php $email ?></span>
 
                                     <input type="file" class="d-none" id="profileimage" />
                                     <label for="profileimage" class="btn btn-primary mt-5" onclick="UpdateProfileImage();">Update Profile Image</label>
@@ -56,23 +85,23 @@
 
                                         <div class="col-6">
                                             <label class="form-label">First Name</label>
-                                            <input type="text" class="form-control" value="Sahan" id="fname"/>
+                                            <input type="text" class="form-control" value="<?php echo $user_details["fname"] ?>" id="fname" />
                                         </div>
 
                                         <div class="col-6">
                                             <label class="form-label">Last Name</label>
-                                            <input type="text" class="form-control" value="Perera" id="lname"/>
+                                            <input type="text" class="form-control" value="<?php echo $user_details["lname"] ?>" id="lname" />
                                         </div>
 
                                         <div class="col-12">
                                             <label class="form-label">Mobile</label>
-                                            <input type="text" class="form-control" value="0771112223" id="mobile"/>
+                                            <input type="text" class="form-control" value="<?php echo $user_details["mobile"] ?>" id="mobile" />
                                         </div>
 
                                         <div class="col-12">
                                             <label class="form-label">Password</label>
                                             <div class="input-group">
-                                                <input type="password" class="form-control" value="abcdef" readonly />
+                                                <input type="password" class="form-control" value="<?php echo $user_details["password"] ?>" readonly />
                                                 <span class="input-group-text bg-primary" id="basic-addon2">
                                                     <i class="bi bi-eye-slash-fill text-white"></i>
                                                 </span>
@@ -81,30 +110,73 @@
 
                                         <div class="col-12">
                                             <label class="form-label">Email</label>
-                                            <input type="text" class="form-control" readonly value="sahan@gmail.com"/>
+                                            <input type="text" class="form-control" readonly value="<?php echo $user_details["email"] ?>" />
                                         </div>
 
                                         <div class="col-12">
                                             <label class="form-label">Registered Date</label>
                                             <input type="text" class="form-control" readonly
-                                                value="2023-01-01 12:00:00" id="rdate"/>
+                                                value="<?php echo $user_details["joined_date"] ?>" id="rdate" />
                                         </div>
 
                                         <div class="col-12">
                                             <label class="form-label">Address Line 01</label>
-                                            <input type="text" class="form-control" id="address1"/>
+                                            <?php
+                                            if (empty($address_details["line_1"])) {
+                                            ?>
+                                                <input type="text" class="form-control" id="address1" />
+                                            <?php
+                                            } else {
+                                            ?>
+                                                <input type="text" class="form-control" id="address1" value="<?php echo $address_details["line_1"] ?>" />
+                                            <?php
+                                            }
+                                            ?>
                                         </div>
 
                                         <div class="col-12">
                                             <label class="form-label">Address Line 02</label>
-                                            <input type="text" class="form-control" id="address2"/>
+                                            <?php
+                                            if (empty($address_details["line_2"])) {
+                                            ?>
+                                                <input type="text" class="form-control" id="address2" />
+                                            <?php
+                                            } else {
+                                            ?>
+                                                <input type="text" class="form-control" id="address2" value="<?php echo $address_details["line_2"] ?>" />
+                                            <?php
+                                            }
+                                            ?>
                                         </div>
 
+                                        <?php
+                                        $province_rs = Database::search("SELECT * FROM `province`");
+                                        $district_rs = Database::search("SELECT * FROM `district`");
+                                        $city_rs = Database::search("SELECT * FROM `city`");
+                                        ?>
                                         <div class="col-6">
                                             <label class="form-label">Province</label>
                                             <select class="form-select" id="Province">
                                                 <option value="0">Select Province</option>
-                                                <option value="1">Colombo</option>
+                                                <?php
+                                                for ($x = 0; $x < $province_rs->num_rows; $x++) {
+                                                    $province_data = $province_rs->fetch_assoc();
+                                                ?>
+
+                                                    <option value="<?php $province_data["province_id"] ?>"
+                                                        <?php
+                                                        if (!empty($address_details["province_id"])) {
+                                                            if ($province_data["province_id"] == $address_details["province_id"]) {
+                                                        ?>Select<?php
+                                                            }
+                                                        }
+                                                                ?>>
+                                                        <?php echo $province_data["province_name"] ?>
+                                                    </option>
+                                                <?php
+                                                }
+
+                                                ?>
                                             </select>
                                         </div>
 
@@ -112,8 +184,25 @@
                                             <label class="form-label">District</label>
                                             <select class="form-select" id="District">
                                                 <option value="0">Select District</option>
-                                                <option value="1">Kaluthara</option>
+                                                <?php
+                                                for ($x = 0; $x < $district_rs->num_rows; $x++) {
+                                                    $district_data = $district_rs->fetch_assoc();
+                                                ?>
 
+                                                    <option value="<?php $district_data["district_id"] ?>"
+                                                        <?php
+                                                        if (!empty($address_details["district_id"])) {
+                                                            if ($district_data["district_id"] == $address_details["district_id"]) {
+                                                        ?>Select<?php
+                                                            }
+                                                        }
+                                                                ?>>
+                                                        <?php echo $district_data["district_name"] ?>
+                                                    </option>
+                                                <?php
+                                                }
+
+                                                ?>
                                             </select>
                                         </div>
 
@@ -121,19 +210,47 @@
                                             <label class="form-label">City</label>
                                             <select class="form-select" id="City">
                                                 <option value="0">Select City</option>
-                                                <option value="1">Kaluthara</option>
+                                                <?php
+                                                for ($x = 0; $x < $city_rs->num_rows; $x++) {
+                                                    $city_data = $city_rs->fetch_assoc();
+                                                ?>
+
+                                                    <option value="<?php $city_data["city_id"] ?>"
+                                                        <?php
+                                                        if (!empty($address_details["city_id"])) {
+                                                            if ($city_data["city_id"] == $address_details["city_id"]) {
+                                                        ?>Select<?php
+                                                            }
+                                                        }
+                                                                ?>>
+                                                        <?php echo $city_data["city_name"] ?>
+                                                    </option>
+                                                <?php
+                                                }
+
+                                                ?>
 
                                             </select>
                                         </div>
 
                                         <div class="col-6">
                                             <label class="form-label">Postal Code</label>
-                                            <input type="text" class="form-control" id="Postalcode"/>
+                                            <?php
+                                            if (empty($address_details["postalcode"])) {
+                                            ?>
+                                                <input type="text" class="form-control" id="Postalcode" />
+                                            <?php
+                                            } else {
+                                            ?>
+                                                <input type="text" class="form-control" id="Postalcode" value="<?php echo $address_details["postalcode"] ?>" />
+                                            <?php
+                                            }
+                                            ?>
                                         </div>
 
                                         <div class="col-12">
                                             <label class="form-label">Gender</label>
-                                            <input type="text" class="form-control" value="Male" readonly/>
+                                            <input type="text" class="form-control" value="Male" readonly />
                                         </div>
 
                                         <div class="col-12 d-grid mt-2">

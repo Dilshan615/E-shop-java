@@ -24,8 +24,7 @@ if ($user_ps->num_rows == 1) {
     $address_ps = Database::search("SELECT * FROM `user_has_address` WHERE `user_email` = '" . $email . "'");
 
     if ($address_ps->num_rows == 1) {
-
-        Database::iud("UPDATE `user_has_address` SET `city_city_id`='" . $city . "',`line_1`='" . $address1 . "',`line_2`='" . $address2 . "',`postalcode`='" . $postalcode . "' WHERE `user_email`='" . $email . "'");
+        Database::iud("UPDATE `user_has_address` SET `city_city_id`='" . $city . "',`line_1`='" . $address1 . "',`line_2`='" . $address2 . "',`postalcode`='" . $postalcode . "' WHERE `user_email` = '" . $email . "'");
     } else {
 
         Database::iud("INSERT INTO `user_has_address`(`user_email`,`city_city_id`,`line_1`,`line_2`,`postalcode`) VALUES ('" . $email . "','" . $city . "','" . $address1 . "','" . $address2 . "','" . $postalcode . "')");
@@ -41,7 +40,7 @@ if ($user_ps->num_rows == 1) {
         if (in_array($imege_extension, $aie)) {
 
             $aie;
-            
+
             if ($imege_extension == "image/jpeg") {
                 $new_imege_extension = ".jpeg";
             } else if ($imege_extension == "imsge/png") {
